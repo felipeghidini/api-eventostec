@@ -43,6 +43,7 @@ public class EventService {
         newEvent.setDate(new Date(data.date()));
         newEvent.setImgUrl(imgUrl);
         newEvent.setRemote(data.remote());
+
         eventRepository.save(newEvent);
 
         return newEvent;
@@ -58,7 +59,7 @@ public class EventService {
             return s3Client.getUrl(bucketName, filename).toString();
         } catch (Exception e) {
             System.out.println("Erro ao subir o arquivo: " + e.getMessage());
-            return null;
+            return "";
     }
 }
 
