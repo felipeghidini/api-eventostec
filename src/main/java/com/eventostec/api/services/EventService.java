@@ -30,6 +30,9 @@ public class EventService {
     @Autowired
     private EventRepository eventRepository;
 
+    @Autowired
+    private AddressService addressService;
+
     @Value("${aws.bucket.name}")
     private String bucketName;
 
@@ -51,6 +54,9 @@ public class EventService {
 
         eventRepository.save(newEvent);
 
+        if (!data.remote()) {
+            this.addressService.createAddress(data, newEvent);
+        }
         return newEvent;
     }
 
@@ -84,8 +90,38 @@ public class EventService {
                 event.getTitle(),
                 event.getDescription(),
                 event.getDate(),
-                "",
-                "",
+                event.getAddress() != null ? event.getAddress().getCity() : "",
+                event.getAddress() != null ? event.getAddress().getUf() : "",
+                event.getRemote(),
+                event.getEventUrl(),
+                event.getImgUrl()
+        )).stream().toList();
+    }
+
+    public List<EventResponseDTO> getFilteredEvents(int page, int size, String title, String city, String uf, Date startDate, Date endDate) {
+        title = (title != null) ? title : "";
+        city = (city != null) ? city : "";
+        uf = (uf != null) ? uf : "";
+        startDate = (startDate != null) ? startDate : new Date(0);
+        endDate = (endDate != null) ? endDate : new Date();
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Event> events = eventRepository.findFilteredEvents(
+                title,
+                city,
+                uf,
+                startDate,
+                endDate,
+                pageable
+        );
+
+        return events.map(event -> new EventResponseDTO(
+                event.getId(),
+                event.getTitle(),
+                event.getDescription(),
+                event.getDate(),
+                event.getAddress() != null ? event.getAddress().getCity() : "",
+                event.getAddress() != null ? event.getAddress().getUf() : "",
                 event.getRemote(),
                 event.getEventUrl(),
                 event.getImgUrl()
