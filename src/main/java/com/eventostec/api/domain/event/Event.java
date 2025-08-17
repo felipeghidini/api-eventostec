@@ -28,6 +28,9 @@ public class Event {
     private Boolean remote;
     private Date date;
 
+    @OneToOne(mappedBy = "event", cascade = CascadeType.ALL)
+    private Address address;
+
     public UUID getId() {
         return id;
     }
@@ -84,6 +87,12 @@ public class Event {
         this.date = date;
     }
 
-    @OneToOne(mappedBy = "event", cascade = CascadeType.ALL)
-    private Address address;
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
 }
